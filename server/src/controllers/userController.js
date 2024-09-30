@@ -29,16 +29,39 @@ const failureGoogleLogin = (req, res) => {
 };
 const register = async (req, res) => {
   try {
+  
     const userData = req.body;
+    console.log("register",userData.email);
+    const userId = await mySqlPool.query(
+            `SELECT id  from users where email = ?`,[userData.email]
+          );
+    console.log("userId ",userId);
+    if(userId){
+      res.status(200).json({
+        message: "User already registered",
+        userId: userId,
+      });
+    }else{
     const user = await mySqlPool.query("INSERT INTO users set ?", [userData]);
     res.status(201).json({
       message: "User Registered Successfully",
       userId: user.id,
-    });
+    });}
   } catch (error) {
     res.status(501).json({ message: error.message });
   }
 };
+// const getUserByEmail=async (email) => {
+//   try {
+//     const id = await mySqlPool.query(
+//       `SELECT id  from users where email = ?`,[email]
+//     );
+//     return id;
+   
+//   } catch (err) {
+//     console.log(err);
+//   }
+// };
 const listUsers = async (req, res) => {
   try {
     const data = await mySqlPool.query(

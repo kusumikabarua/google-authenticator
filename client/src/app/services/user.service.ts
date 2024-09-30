@@ -13,4 +13,7 @@ export class UserService {
   getUsers(){
     return this.httpClient.get<User[]>(this.apiUrl+'/users');
   }
+  addUser(model:User){
+    return this.httpClient.post(this.apiUrl+'/auth/register',model)
+  }
 }

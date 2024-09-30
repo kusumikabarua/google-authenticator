@@ -23,7 +23,9 @@ export class DashboardComponent implements OnInit {
   displayedColumns: string[] = [ 'name', 'email'];
   datasource :User[]=[];
   ngOnInit(): void {
-    this.showData();
+   
+    this.register();
+    
     this.userService.getUsers().subscribe((result) => {
       this.userObject = result;
       console.log(this.userObject.users);
@@ -33,9 +35,18 @@ export class DashboardComponent implements OnInit {
   
   }
 
-  showData() {
-    this.profile = this.authService.getProfile();
+    register() {
+    this.profile =  this.authService.getProfile();
     console.log(this.profile);
+    if(this.profile){
+      const model:User = {name:this.profile.name,email:this.profile.email,googleProfileId:this.profile.aud,role:"user",id:0,password:""}
+      this.userService.addUser(model).subscribe((result) => {
+        console.log(result)
+      });
+    }else{
+      location.reload();
+    }
+    
   }
 
   logOut() {

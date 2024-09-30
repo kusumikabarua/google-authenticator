@@ -18,5 +18,6 @@ export class LoginComponent {
 
   signInWithGoogle() {
     this.authService.login();
+  
   }
 }
