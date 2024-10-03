@@ -47,7 +47,15 @@ const register = async (req, res) => {
     console.log("user",insertId);
     io.emit('New User Registered', `server: ${insertId}`);
     userData.id=insertId;
-    sendEmail("Kusumikawork@gmail.com",userData.name,userData.email);
+    const admins = await mySqlPool.query(
+      `SELECT email  from users where role = "admin"`
+    );
+    let adminEmails =admins[0][0].email;
+    for(let i=1;i< admins[0].length;i++){
+      adminEmails =adminEmails+","+admins[0][i].email;
+    };
+    console.log("adminEmails",adminEmails);
+    sendEmail(adminEmails,userData.name,userData.email);
     res.status(201).json({
       message: "User Registered Successfully",
       user: userData,
