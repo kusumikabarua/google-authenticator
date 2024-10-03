@@ -1,8 +1,9 @@
 const mySqlPool = require("../config/db");
+const io =require("../config/socketio");
 const loadAuth = (req, res) => {
   res.render("auth");
 };
-
+const {sendEmail} = require("../email/nodemailer")
 const successGoogleLogin = async (req, res) => {
   if (!req.user) res.redirect("/failure");
   console.log(req.user);
@@ -17,7 +18,7 @@ const successGoogleLogin = async (req, res) => {
 //   console.log("id"+id);
   if (rows.length===0) {
     const user = await mySqlPool.query("INSERT INTO users set ?", [
-      { "name": displayName, "email": email, "googleprofileid": id },
+      { "name": displayName, "email": email, "googleprofileid": id ,"role":"user"},
     ]);
     console.log("userId"+user.id);
   }
@@ -32,20 +33,24 @@ const register = async (req, res) => {
   
     const userData = req.body;
     console.log("register",userData.email);
-    const userId = await mySqlPool.query(
-            `SELECT id  from users where email = ?`,[userData.email]
+    const user = await mySqlPool.query(
+            `SELECT *  from users where email = ?`,[userData.email]
           );
-    console.log("userId ",userId);
-    if(userId){
+    console.log("user ",user[0][0]);
+    if(user[0].length>0){
       res.status(200).json({
         message: "User already registered",
-        userId: userId,
+        user: user[0][0],
       });
     }else{
-    const user = await mySqlPool.query("INSERT INTO users set ?", [userData]);
+      const [{ insertId }] = await mySqlPool.query("INSERT INTO users set ?", [userData]);
+    console.log("user",insertId);
+    io.emit('New User Registered', `server: ${insertId}`);
+    userData.id=insertId;
+    sendEmail("Kusumikawork@gmail.com",userData.name,userData.email);
     res.status(201).json({
       message: "User Registered Successfully",
-      userId: user.id,
+      user: userData,
     });}
   } catch (error) {
     res.status(501).json({ message: error.message });

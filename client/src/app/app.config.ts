@@ -6,6 +6,8 @@ import { routes } from './app.routes';
 import { provideHttpClient } from '@angular/common/http';
 import { provideOAuthClient } from 'angular-oauth2-oidc';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { SocketioService } from './socketio.service';
+
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -14,5 +16,6 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(),
     provideOAuthClient(),
    provideAnimationsAsync(),
+   SocketioService
   ],
 };

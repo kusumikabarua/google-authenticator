@@ -3,6 +3,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { AuthGoogleService } from '../services/auth-google.service';
+import { AuthService } from '../services/auth.service';
 
 const MODULES: any[] = [MatFormFieldModule, FormsModule, ReactiveFormsModule];
 
@@ -14,10 +15,15 @@ const MODULES: any[] = [MatFormFieldModule, FormsModule, ReactiveFormsModule];
   styleUrl: './login.component.scss',
 })
 export class LoginComponent {
-  private authService = inject(AuthGoogleService);
 
+  private authGoogleService = inject(AuthGoogleService);
+  private authService = inject(AuthService)
+ 
   signInWithGoogle() {
-    this.authService.login();
+    
+    this.authGoogleService.login();
+    
+   // this.authService.login("kusumikabarua@gmail.com","admin");
   
   }
 }

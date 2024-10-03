@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthGoogleService } from '../services/auth-google.service';
+import { SocketioService } from '../socketio.service';
 import { CommonModule } from '@angular/common';
 import User from '../models/user';
 import { UserService } from '../services/user.service';
@@ -17,6 +18,7 @@ import {MatTableModule} from '@angular/material/table';
 export class DashboardComponent implements OnInit {
   private authService = inject(AuthGoogleService);
   private router = inject(Router);
+  private socketService = inject(SocketioService);
   profile: any;
   userObject:any;
   private userService = inject(UserService);
@@ -39,6 +41,7 @@ export class DashboardComponent implements OnInit {
     this.profile =  this.authService.getProfile();
     console.log(this.profile);
     if(this.profile){
+      this.socketService.setupSocketConnection(this.profile.email);
       const model:User = {name:this.profile.name,email:this.profile.email,googleProfileId:this.profile.aud,role:"user",id:0,password:""}
       this.userService.addUser(model).subscribe((result) => {
         console.log(result)
@@ -48,7 +51,9 @@ export class DashboardComponent implements OnInit {
     }
     
   }
-
+  ngOnDestroy() {
+        this.socketService.disconnect();
+      }
   logOut() {
     this.authService.logout();
     this.router.navigate(['/login']);

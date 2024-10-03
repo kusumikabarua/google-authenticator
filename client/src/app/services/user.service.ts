@@ -1,6 +1,7 @@
 import { Injectable,inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import User from '../models/user';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -16,4 +17,5 @@ export class UserService {
   addUser(model:User){
     return this.httpClient.post(this.apiUrl+'/auth/register',model)
   }
+ 
 }

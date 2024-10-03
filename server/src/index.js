@@ -1,8 +1,13 @@
 require("dotenv").config({ path: "src/.env" });
-const express = require("express");
-const app = express();
+
 const session = require("express-session");
 const PORT = process.env.PORT || 4000;
+const httpConfig = require("./config/httpConfig");
+const express = httpConfig.express;
+const app = httpConfig.app;
+const http = httpConfig.http;
+
+const io =require("./config/socketio")
 const cors =require("cors");
 app.use(
   session({
@@ -24,16 +29,39 @@ const mySqlPool = require("./config/db");
 app.use("/", userRoutes);
 
 app.get("/", (req, res) => {
-    res.send("Backend server is running");
+    res.send("<h1>Hey Socket.io</h1>");
   });
 mySqlPool
   .query("SELECT 1")
   .then(() => {
+
     console.log("MY Sql DB connected");
-    app.listen(PORT, () => {
+      
+  io.on('connection', (socket) => {
+    let token = socket.handshake.auth.token;
+    console.log('a user connected '+token);
+    socket.on('my message', (msg) => {
+      console.log('message: ' + msg);
+      io.emit('my broadcast', `server: ${msg}`);
+    });
+    socket.on('disconnect', () => {
+      console.log('user disconnected');
+    });
+  });
+
+
+    http.listen(PORT, () => {
       console.log("Server Running on port 4000");
     });
   })
   .catch((error) => {
     console.log("Couldnt connect to My Sql DB",error)
   });
+  
+  module.exports = { io };
+
+
+  
+ 
+
+  
